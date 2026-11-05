@@ -11,8 +11,8 @@ public import Lean.Meta.Native
 public meta import Lean.Meta.Native
 public import Mathlib.Data.Rat.Cast.CharZero
 public meta import Mathlib.Data.Rat.Cast.CharZero
-public import Mathlib.Data.Real.Basic
-public meta import Mathlib.Data.Real.Basic
+public import Mathlib.Basic.Real.Basic
+public meta import Mathlib.Basic.Real.Basic
 public import Mathlib.Util.AtLocation
 public meta import Mathlib.Util.AtLocation
 public import Smt.Recognizers
@@ -39,7 +39,7 @@ instance (v₁ v₂ : Var) : Decidable (v₁ ≤ v₂) :=
 instance (v₁ v₂ : Var) : Decidable (v₁ < v₂) :=
   if h : v₁.type < v₂.type ∨ (v₁.type = v₂.type ∧ v₁.val < v₂.val) then isTrue h else isFalse h
 
-def Context := Var → Real
+abbrev Context := Var → Real
 
 def IntContext := Nat → Int
 def RealContext := Nat → Real
@@ -534,7 +534,7 @@ def traceArithNormNum (r : Except Exception Unit) : MetaM MessageData :=
 open Mathlib.Meta.NormNum Mathlib.Tactic in
 def normNum (mv : MVarId) : MetaM Unit := withTraceNode `smt.reconstruct.normNum traceArithNormNum do
   let simpCtx ← Meta.Simp.mkContext
-  let remainingGoal? ← (transformAtTarget (fun e ctx ↦ deriveSimp ctx (useSimp := true) e) "norm_num" (ifUnchanged := .silent) mv).run simpCtx
+  let remainingGoal? ← (transformAtTarget (fun e ctx ↦ deriveSimp ctx (useSimp := true) (e := e)) "norm_num" (ifUnchanged := .silent) mv).run simpCtx
   match remainingGoal? with
   | .some _ => throwError "[norm_num]: could not prove {← mv.getType}"
   | .none => pure ()
